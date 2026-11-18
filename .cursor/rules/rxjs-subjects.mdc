@@ -1,0 +1,25 @@
+---
+description: RxJS Subject family best practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# RxJS Subjects
+
+- Use a Subject when **many listeners share one push source**; otherwise prefer a cold Observable.
+- Expose **`asObservable()`** publicly; keep `next` private.
+- Plain `Subject`: no replay — late subscribers miss past values.
+- `BehaviorSubject`: current value + `getValue()` — UI/state seeds.
+- `ReplaySubject(n)`: replay last n (or time window).
+- `AsyncSubject`: last value only on **complete**.
+- `error` / `complete` are **terminal** for that Subject; do not push errors into a shared bus — catch upstream.
+- Do **not** store Subjects inside signals; store values and bridge (`toSignal` / subscribe → `set`).
+
+```js
+// ✅ GOOD
+class Bus {
+  #events = new Subject();
+  events$ = this.#events.asObservable();
+  emit(e) { this.#events.next(e); }
+}
+```

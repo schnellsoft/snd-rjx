@@ -1,0 +1,29 @@
+---
+description: RxJS Scheduler best practices (async, asap, queue, animationFrame)
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# RxJS Schedulers
+
+- **Do not** default every Observable to `asyncScheduler`.
+- Timed operators (`interval`, `timer`, `delay`, `debounceTime`, …) already use **`asyncScheduler`** by default.
+- `observeOn(scheduler)` → when **notifications** are delivered.
+- `subscribeOn(scheduler)` → when **subscription** starts (rarer).
+- Prefer `scheduled(array, sch)` over ambiguous `of(...values, scheduler)`.
+
+| Need | Scheduler |
+|------|-----------|
+| Default / yield to event loop | `asyncScheduler` |
+| Microtask (after stack, before timers) | `asapScheduler` |
+| Same-turn trampoline | `queueScheduler` |
+| Visual updates | `animationFrameScheduler` |
+| Sync | omit scheduler |
+
+```js
+// ✅ yield before UI after heavy sync map
+heavy$.pipe(map(expensive), observeOn(asyncScheduler)).subscribe(updateUI);
+
+// ❌ unnecessary double async
+source$.pipe(observeOn(asyncScheduler), debounceTime(300), observeOn(asyncScheduler));
+```

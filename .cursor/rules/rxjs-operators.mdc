@@ -1,0 +1,33 @@
+---
+description: RxJS operator selection and pipe design best practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# RxJS operators
+
+## Higher-order mapping
+
+| Goal | Operator |
+|------|----------|
+| Latest only; cancel stale | `switchMap` |
+| Parallel / all inners | `mergeMap` |
+| Serial ordered | `concatMap` |
+| Ignore while busy | `exhaustMap` |
+
+## Pipe design
+
+- Read left-to-right: normalize → filter → time → flatten → present.
+- Pure transforms in `map`/`filter`; side effects only in `tap` (sparingly).
+- Put `catchError` **on the inner** when the outer must keep going.
+- `reduce` / `toArray` / `forkJoin` need **completion**; do not use on infinite streams without `take*`.
+- Prefer `share` / `shareReplay({ bufferSize, refCount: true })` over hand-rolled `multicast` unless you need manual `connect()`.
+
+```js
+// ✅ typeahead
+input$.pipe(
+  debounceTime(300),
+  distinctUntilChanged(),
+  switchMap((q) => search(q).pipe(catchError(() => of([])))),
+);
+```

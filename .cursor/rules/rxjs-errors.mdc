@@ -1,0 +1,22 @@
+---
+description: RxJS error handling best practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# Error handling
+
+- Always provide `error` on subscribe for HTTP / fallible streams (or use `catchError` upstream).
+- Prefer **`catchError` on the inner** inside `switchMap`/`mergeMap` so the outer stays alive.
+- Do **not** call `subject.error(e)` on a long-lived bus; emit a failure value or catch before the bus.
+- `retry` / `retryWhen` for transient failures; bound the attempts.
+- Throwing inside `next` handlers is not control flow — use operators.
+
+```js
+// ✅ keep outer alive
+query$.pipe(
+  switchMap((q) =>
+    search(q).pipe(catchError((err) => of({ ok: false, err }))),
+  ),
+).subscribe(/* ... */);
+```

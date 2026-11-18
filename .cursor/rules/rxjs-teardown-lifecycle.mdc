@@ -1,0 +1,22 @@
+---
+description: RxJS teardown, takeUntil, and UI/component lifecycle practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# Teardown and lifecycle
+
+- Every long-lived subscribe needs an end: `unsubscribe`, `take`, `takeUntil`, or framework helpers.
+- Web components / Lit: `takeUntil(destroy$)` in `disconnectedCallback` / controller `hostDisconnected`.
+- Angular: prefer `async` pipe, `toSignal`, or `takeUntilDestroyed()`.
+- Fetch wrappers: abort with `AbortController` in Observable teardown; ignore `AbortError` as stream error.
+- Unsubscribe is idempotent; still design producers with safe teardown.
+
+```js
+// ✅ WC / Lit style
+const destroy$ = new Subject();
+source$.pipe(takeUntil(destroy$)).subscribe(/* ... */);
+// on disconnect:
+destroy$.next();
+destroy$.complete();
+```

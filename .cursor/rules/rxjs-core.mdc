@@ -1,0 +1,24 @@
+---
+description: Core RxJS Observable, Observer, Subscriber, Subscription best practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: true
+---
+
+# RxJS core
+
+- Prefer **cold Observables** for lazy work; use **Subjects** only to share/bridge.
+- `pipe(...)` returns an **Observable**, not an Observer.
+- Pass Observer **objects** to `subscribe` (`{ next, error, complete }`); always handle `error` on fallible streams.
+- `subscribe` returns a **Subscription** (internally a Subscriber). Tear down with `unsubscribe`, `takeUntil`, or `takeUntilDestroyed`.
+- **Observer** = consumer contract. **Subscriber** = Observer + Subscription + safety. Do not expect plain Observers to have `unsubscribe`.
+- Always provide **teardown** in `new Observable` (clear timers, `AbortController.abort`, remove listeners).
+- Never start work before subscribe (keep Observables lazy).
+- Prefer flattening operators over **nested `subscribe`**.
+
+```js
+// ❌ BAD
+outer$.subscribe((x) => inner$(x).subscribe(console.log));
+
+// ✅ GOOD
+outer$.pipe(switchMap((x) => inner$(x))).subscribe(console.log);
+```

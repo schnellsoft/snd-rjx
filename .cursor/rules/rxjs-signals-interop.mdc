@@ -1,0 +1,13 @@
+---
+description: RxJS and signals interop (Angular/Lit/vanilla) best practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# Signals ↔ RxJS
+
+- Signals hold **values**; Observables/Subjects hold **events over time**.
+- Bridge: Observable → signal (`toSignal` / subscribe then `set`); signal → Observable (`toObservable`).
+- Never store a **Subject instance inside a signal** to get updates — `next` will not notify the signal.
+- Use RxJS for cancellation, time, and fan-in/out; use signals for sync UI/derived state.
+- Lit: assign to `@state`/`@property` (or signal watcher) from subscribe — RxJS alone does not re-render.

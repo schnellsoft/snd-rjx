@@ -1,0 +1,15 @@
+---
+description: Conventions for this RxJS study repo (CDN ESM, folders, demos)
+globs: "**/*.{js,html}"
+alwaysApply: true
+---
+
+# Project conventions (rxjs003)
+
+- Import RxJS from CDN ESM: `https://cdn.jsdelivr.net/npm/rxjs@7.8.1/+esm`.
+- Study scripts live under `js/js01` … `js/js06`; shared helpers under `libs/`.
+- Demos: export `runDemo()`, set `window.runDemo` when console access is needed; ES modules are not global by default.
+- Enable **one** script at a time in `index.html` (comment the rest).
+- Unit tests use `libs/test.js` (`test` / `expect`); run via browser + static server, not bare `node` (HTTPS imports).
+- New deep tutorials as PDF go under `docs/tutorials/`.
+- Prefer commented educational samples over production bundler setup unless asked.

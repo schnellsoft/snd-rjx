@@ -1,0 +1,25 @@
+---
+description: RxJS multicasting, ConnectableObservable, share best practices
+globs: "**/*.{js,ts,mjs}"
+alwaysApply: false
+---
+
+# Multicasting
+
+- Cold source + multiple subscribers = **multiple executions**. Share when that is wrong.
+- Prefer **`share()`** / **`shareReplay({ bufferSize, refCount: true })`** in new code.
+- `multicast` / `publish*` return **ConnectableObservable** (has `connect()`, not a Subject).
+- Manual `connect()`: subscribe consumers first; guard against double-connect; unsubscribe the connection.
+- With `refCount`, prefer `multicast(() => new Subject())` factory so reconnect gets a fresh hub.
+- Do not reuse a **completed** Subject as the multicast hub.
+
+```js
+// ✅ modern
+const shared$ = source$.pipe(share());
+
+// ✅ explicit connect when timing must be manual
+const co$ = source$.pipe(multicast(() => new Subject()));
+co$.subscribe(a);
+co$.subscribe(b);
+const conn = co$.connect();
+```
